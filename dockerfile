@@ -1,17 +1,15 @@
-FROM gcc:latest
-WORKDIR /app
 # Resmi Python imajını kullan
 FROM python:3.10-slim
 
-# Sistem paketlerini ve g++ derleyicisini yükle
-RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
+# Sistem paketlerini, g++ derleyicisini ve Docker istemcisini yüklüyoruz
+RUN apt-get update && apt-get install -y g++ docker.io && rm -rf /var/lib/apt/lists/*
 
 # Çalışma dizinini belirle
 WORKDIR /app
 
 # Gereksinimleri kopyala ve yükle
 COPY requirements.txt .
-RUNC pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Proje dosyalarını içeri aktar
 COPY . .
