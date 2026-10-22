@@ -1,9 +1,12 @@
 version: '3.8'
 
 services:
-  cpp-compiler:
+  cpp-ide:
     build: .
-    container_name: cpp_runner_container
+    container_name: cpp_web_ide_app
+    ports:
+      - "5000:5000"  # Bilgisayarın 5000 numaralı portunu konteynere bağlıyoruz!
     volumes:
-      - ./codes:/app/codes
-    command: tail -f /dev/null
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+    restart: always
