@@ -37,10 +37,11 @@ def handle_run_code(data):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(code)
     
-    emit('output', "\r\n[Sistem] Kod Docker konteynerinde derleniyor...\r\n")
+    emit('output', "\r\n[Sistem] Kod derleniyor...\r\n")
     
     try:
-        compile_cmd = ["docker", "exec", "cpp_runner_container", "g++", "/app/codes/main.cpp", "-o", "/app/codes/program"]
+        # Doğrudan konteyner içinde g++ ile derleme yapıyoruz
+        compile_cmd = ["g++", file_path, "-o", "codes/program"]
         compile_result = subprocess.run(compile_cmd, capture_output=True, text=True)
         
         if compile_result.returncode != 0:
@@ -49,7 +50,8 @@ def handle_run_code(data):
         
         emit('output', "[Sistem] Derleme başarılı! Program başlatılıyor...\r\n\n")
         
-        run_cmd = ["docker", "exec", "-i", "cpp_runner_container", "/app/codes/program"]
+        # Derlenen programı doğrudan çalıştırıyoruz
+        run_cmd = ["./codes/program"]
         
         active_process = subprocess.Popen(
             run_cmd,
@@ -69,11 +71,7 @@ def handle_run_code(data):
                         break
                     if current_session_id == s_id:
                         text = chunk.decode('utf-8', errors='ignore')
-                        
-                        # KRİTİK DÜZELTME: Merdiven efektini önlemek için 
-                        # tüm satır sonlarını (\n) imleci başa alan (\r\n) formatına çeviriyoruz
                         text = text.replace('\r\n', '\n').replace('\n', '\r\n')
-                        
                         socketio.emit('output', text)
             except Exception:
                 pass
