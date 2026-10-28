@@ -38,6 +38,7 @@
  <button class="preset-btn" onclick="loadCode('tahmin')">🎮 Sayı Tahmin</button>
  <button class="preset-btn" onclick="loadCode('hesap')">🧮 Hesap Makinesi</button>
  <button class="preset-btn" onclick="loadCode('birim')">🔄 Birim Çevirici</button>
+ <button class="preset-btn" onclick="loadCode('analiz')">📊 Kelime Analizi</button>
  </div>
  <textarea id="codeArea"></textarea>
  <button class="run-btn" onclick="runCode()">Kodu Derle ve Çalıştır</button>
@@ -344,6 +345,50 @@ int main () {
     } while(secim == 'e' || secim == 'E');
 
     cout << "Iyi gunler dileriz!";
+    return 0;
+}`,
+ analiz: `#include <iostream>
+#include <string>
+#include <sstream>
+
+using namespace std;
+int main () {
+string cumle;
+int harf = 0;
+int karakter;
+int sesli_harf = 0;
+int kelime = 0;
+int sessiz_harf = 0;
+
+cout << "lutfen cumlenizi girin: " << endl;
+cout << "(turkce karakter kullanmayiniz!)" << endl;
+getline (cin, cumle);
+
+    karakter = cumle.length();
+     
+    stringstream ss(cumle);
+    string kelam;
+    while(ss >> kelam) {
+        kelime++;
+    }
+
+    for (char c : cumle){
+    if (c == 'q' || c == 'w' || c == 'e' || c == 'r' || c == 't' || c == 'y' || c == 'u' || c == 'i' || c == 'o' || c == 'p' || c == 'a' || c == 's' || c == 'd' || c == 'f' || c == 'g' || c == 'h' || c == 'j' || c == 'k' || c == 'l' || c == 'z' || c == 'x' || c == 'c' || c == 'v' || c == 'b' || c == 'n' || c == 'm'){
+        harf ++;
+    }
+    }
+    for (char a : cumle) {
+        if (a == 'a' || a == 'e' || a == 'u' || a == 'o' || a == 'i') {
+            sesli_harf++;
+    } }
+
+    sessiz_harf = harf - sesli_harf;
+    
+    cout << "toplam karakter: " << karakter << endl;
+    cout << "toplam harf: " << harf << endl;
+    cout << "toplam kelime: " << kelime << endl;
+    cout << "toplam sesli harf: " << sesli_harf << endl;
+    cout << "toplam sessiz harf: " << sessiz_harf << endl;
     return 0;
 }`
  };
