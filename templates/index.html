@@ -1,280 +1,416 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <title>C++ Real-Time Cloud Compiler</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e1e; color: #d4d4d4; margin: 0; padding: 20px; }
-        h2 { color: #4ec9b0; margin-top: 0; }
-        .container { display: flex; gap: 20px; height: 80vh; }
-        .pane { flex: 1; display: flex; flex-direction: column; }
-        .toolbar { display: flex; gap: 10px; margin-bottom: 8px; }
-        .preset-btn { background-color: #333; color: #4ec9b0; border: 1px solid #4ec9b0; padding: 6px 12px; font-size: 13px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .preset-btn:hover { background-color: #4ec9b0; color: #1e1e1e; }
-        textarea { flex: 1; background-color: #252526; color: #9cdcfe; border: 1px solid #333; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; border-radius: 6px; resize: none; }
-        #terminal-container { flex: 1; background-color: #111; border: 1px solid #333; border-radius: 6px; padding: 10px; overflow: hidden; }
-        button.run-btn { background-color: #0e639c; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-        button.run-btn:hover { background-color: #1177bb; }
-        label { margin-bottom: 5px; font-weight: bold; color: #9cdcfe; }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>C++ Real-Time Cloud Compiler</title>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+ <style>
+ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1e1e1e; color: #d4d4d4; margin: 0; padding: 20px; }
+ h2 { color: #4ec9b0; margin-top: 0; font-size: 1.5rem; }
+ .container { display: flex; gap: 20px; height: 80vh; }
+ .pane { flex: 1; display: flex; flex-direction: column; }
+ .toolbar { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+ .preset-btn { background-color: #333; color: #4ec9b0; border: 1px solid #4ec9b0; padding: 6px 12px; font-size: 13px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+ .preset-btn:hover { background-color: #4ec9b0; color: #1e1e1e; }
+ textarea { flex: 1; background-color: #252526; color: #9cdcfe; border: 1px solid #333; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; border-radius: 6px; resize: none; min-height: 200px; }
+ #terminal-container { flex: 1; background-color: #111; border: 1px solid #333; border-radius: 6px; padding: 10px; overflow: hidden; min-height: 200px; }
+ button.run-btn { background-color: #0e639c; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; width: 100%; }
+ button.run-btn:hover { background-color: #1177bb; }
+ label { margin-bottom: 5px; font-weight: bold; color: #9cdcfe; }
+
+ /* Mobil Uyumluluk için Medya Sorgusu */
+ @media (max-width: 768px) {
+ body { padding: 10px; }
+ .container { flex-direction: column; height: auto; gap: 15px; }
+ .pane { height: 45vh; }
+ h2 { font-size: 1.2rem; }
+ }
+ </style>
 </head>
 <body>
-    <h2>🚀 C++ Gerçek Zamanlı Bulut Derleyici & Terminal</h2>
-    <div class="container">
-        <div class="pane">
-            <label>C++ Kaynak Kodu & Hazır Projeler:</label>
-            <div class="toolbar">
-                <button class="preset-btn" onclick="loadCode('banka')">🏦 Bankamatik</button>
-                <button class="preset-btn" onclick="loadCode('tahmin')">🎮 Sayı Tahmin</button>
-                <button class="preset-btn" onclick="loadCode('hesap')">🧮 Hesap Makinesi</button>
-            </div>
-            <textarea id="codeArea"></textarea>
-            <button class="run-btn" onclick="runCode()">Kodu Derle ve Çalıştır</button>
-        </div>
-        
-        <div class="pane">
-            <label>İnteraktif Terminal (Girdi / Çıktı):</label>
-            <div id="terminal-container"></div>
-        </div>
-    </div>
+ <h2>🚀 C++ Gerçek Zamanlı Bulut Derleyici & Terminal</h2>
+ <div class="container">
+ <div class="pane">
+ <label>C++ Kaynak Kodu & Hazır Projeler:</label>
+ <div class="toolbar">
+ <button class="preset-btn" onclick="loadCode('banka')">🏦 Bankamatik</button>
+ <button class="preset-btn" onclick="loadCode('tahmin')">🎮 Sayı Tahmin</button>
+ <button class="preset-btn" onclick="loadCode('hesap')">🧮 Hesap Makinesi</button>
+ <button class="preset-btn" onclick="loadCode('birim')">🔄 Birim Çevirici</button>
+ </div>
+ <textarea id="codeArea"></textarea>
+ <button class="run-btn" onclick="runCode()">Kodu Derle ve Çalıştır</button>
+ </div>
+ 
+ <div class="pane">
+ <label>İnteraktif Terminal (Girdi / Çıktı):</label>
+ <div id="terminal-container"></div>
+ </div>
+ </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-    <script>
-        const codes = {
-            banka: `#include <iostream>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+ <script>
+ const codes = {
+ banka: `#include <iostream>
 #include <string>
 using namespace std;
 
 int main() {
-    long long bakiye = 1000;
-    char secim;
-    
-    do {
-        string islem;
-        cout << "\\n------------------------" << endl;
-        cout << "Bankamiza hos geldiniz!" << endl;
-        cout << "Lutfen yapmak istediginiz islemi secin (bakiye_sorgula, para_yatir, para_cek): ";
-        cin >> islem;
+ long long bakiye = 1000;
+ char secim;
+ 
+do {
+ string islem;
+ cout << "\\n------------------------" << endl;
+ cout << "Bankamiza hos geldiniz!" << endl;
+ cout << "Lutfen yapmak istediginiz islemi secin (bakiye_sorgula, para_yatir, para_cek): ";
+ cin >> islem;
 
-        if (islem == "bakiye_sorgula") {  
-            cout << "Guncel bakiyeniz: " << bakiye << " TL" << endl;
-        }
-        else if (islem == "para_yatir") {
-            long long yatirilan;
-            cout << "Kac TL yatirmak istersiniz?: ";
-            cin >> yatirilan;
-            if (yatirilan > 0) {
-                bakiye += yatirilan;
-                cout << "Islem basarili! Yeni bakiyeniz: " << bakiye << " TL" << endl;
-            } else {
-                cout << "Gecersiz miktar!" << endl;
-            }
-        }
-        else if (islem == "para_cek") {
-            long long cekilen;
-            cout << "Kac TL cekmek istersiniz?: ";
-            cin >> cekilen;
-            if (cekilen > bakiye) {
-                cout << "YETERSIZ BAKIYE! Isleminiz iptal edildi." << endl;
-            } else if (cekilen > 0) {
-                bakiye -= cekilen;
-                cout << "Islem basarili! Kalan bakiyeniz: " << bakiye << " TL" << endl;
-            } else {
-                cout << "Gecersiz miktar!" << endl;
-            }
-        }
-        else {
-            cout << "Gecersiz islem!" << endl;
-        }
+ if (islem == "bakiye_sorgula") { 
+ cout << "Guncel bakiyeniz: " << bakiye << " TL" << endl;
+ }
+ else if (islem == "para_yatir") {
+ long long yatirilan;
+ cout << "Kac TL yatirmak istersiniz?: ";
+ cin >> yatirilan;
+ if (yatirilan > 0) {
+ bakiye += yatirilan;
+ cout << "Islem basarili! Yeni bakiyeniz: " << bakiye << " TL" << endl;
+ } else {
+ cout << "Gecersiz miktar!" << endl;
+ }
+ }
+ else if (islem == "para_cek") {
+ long long cekilen;
+ cout << "Kac TL cekmek istersiniz?: ";
+ cin >> cekilen;
+ if (cekilen > bakiye) {
+ cout << "YETERSIZ BAKIYE! Isleminiz iptal edildi." << endl;
+ } else if (cekilen > 0) {
+ bakiye -= cekilen;
+ cout << "Islem basarili! Kalan bakiyeniz: " << bakiye << " TL" << endl;
+ } else {
+ cout << "Gecersiz miktar!" << endl;
+ }
+ }
+ else {
+ cout << "Gecersiz islem!" << endl;
+ }
 
-        cout << "Baska islem yapmak istermisiniz? (e/h): ";
-        cin >> secim;
-    } while (secim == 'e' || secim == 'E');
+ cout << "Baska islem yapmak istermisiniz? (e/h): ";
+ cin >> secim;
+ } while (secim == 'e' || secim == 'E');
 
-    cout << "\\nIyi gunler dileriz!" << endl;
-    return 0;
+ cout << "\\nIyi gunler dileriz!" << endl;
+ return 0;
 }`,
-            tahmin: `#include <iostream>
+ tahmin: `#include <iostream>
 #include <cstdlib>
 #include <ctime>
 
 using namespace std;
 
 int main(){
-    srand(time(0));
-    char secim;
-    
-    do {
-        int sayi = (rand() % 10) + 1;
-        int tahmin;
+ srand(time(0));
+ char secim;
+ 
+ do {
+ int sayi = (rand() % 10) + 1;
+ int tahmin;
 
-        cout << "sayi tahmin oyununa hos geldiniz!" << endl;
+ cout << "sayi tahmin oyununa hos geldiniz!" << endl;
 
-        do {
-            cout << "bir ile on arasinda bir sayi secin: ";
-            cin >> tahmin;
+ do {
+ cout << "bir ile on arasinda bir sayi secin: ";
+ cin >> tahmin;
 
-            if(sayi > tahmin){
-                cout << "Daha Yuksek" << endl;
-            }
-            else if(sayi < tahmin){
-                cout << "Daha Dusuk" << endl;
-            }
-            else {
-                cout << "tebrikler kazandin" << endl;
-            }
-        } while(sayi != tahmin);
+ if(sayi > tahmin){
+ cout << "Daha Yuksek" << endl;
+ }
+ else if(sayi < tahmin){
+ cout << "Daha Dusuk" << endl;
+ }
+ else {
+ cout << "tebrikler kazandin" << endl;
+ }
+ } while(sayi != tahmin);
 
-        cout << "Yeniden oynamak istermisiniz? (e/h): ";
-        cin >> secim;
+ cout << "Yeniden oynamak istermisiniz? (e/h): ";
+ cin >> secim;
 
-    } while(secim == 'e' || secim == 'E');
-    
-    cout << "Oynadiginiz icin tesekkurler. Iyi gunler!" << endl;
-    return 0;
+ } while(secim == 'e' || secim == 'E');
+ 
+ cout << "Oynadiginiz icin tesekkurler. Iyi gunler!" << endl;
+ return 0;
 }`,
-            hesap: `#include <iostream>
+ hesap: `#include <iostream>
 #include <string>
 
 using namespace std;
 
 int main() {
-    double sonuc = 0;
-    string giris;
+ double sonuc = 0;
+ string giris;
 
-    cout << "=== Kesintisiz C++ Hesap Makinesi ===" << endl;
-    cout << "Ilk sayiyi girin: ";
-    
-    while (true) {
-        cin >> giris;
-        try {
-            sonuc = stod(giris);
-            break;
-        } catch (...) {
-            cout << "Gecersiz giris! Tekrar ilk sayiyi girin: ";
+ cout << "=== Kesintisiz C++ Hesap Makinesi ===" << endl;
+ cout << "Ilk sayiyi girin: ";
+ 
+ while (true) {
+ cin >> giris;
+ try {
+ sonuc = stod(giris);
+ break;
+ } catch (...) {
+ cout << "Gecersiz giris! Tekrar ilk sayiyi girin: ";
+ }
+ }
+
+ while (true) {
+ cout << "Islem ve yeni sayi girin (Orn: + 5, * 2) [Cikis icin 'q']: ";
+ char islem;
+ cin >> islem;
+
+ if (islem == 'q' || islem == 'Q') {
+ break;
+ }
+
+ string sayiStr;
+ cin >> sayiStr;
+ 
+ double sayi = 0;
+ try {
+ sayi = stod(sayiStr);
+ } catch (...) {
+ cout << "Gecersiz sayi! Tekrar deneyin." << endl;
+ continue;
+ }
+
+ switch (islem) {
+ case '+':
+ sonuc += sayi;
+ break;
+ case '-':
+ sonuc -= sayi;
+ break;
+ case '*':
+ sonuc *= sayi;
+ break;
+ case '/':
+ if (sayi != 0) {
+ sonuc /= sayi;
+ } else {
+ cout << "Hata: Bir sayi sifira bolunemez!" << endl;
+ }
+ break;
+ default:
+ cout << "Gecersiz operator! (+, -, *, / kullanin)" << endl;
+ continue;
+ }
+
+ cout << "Guncel Sonuc: " << sonuc << endl;
+ cout << "-----------------------------------" << endl;
+ }
+
+ cout << "Hesaplama bitti. Toplam Sonuc: " << sonuc << endl;
+ cout << "Iyi gunler dileriz!" << endl;
+ 
+ return 0;
+}`,
+ birim: `#include <iostream>
+using namespace std;
+int main () {
+    char secim;
+    string birim;
+    string cevirilen_birim;
+    string cevirelecek_birim;
+
+    do {
+    cout << "cevirmek istediginiz birimi secin" << endl;
+    cout << "(sicaklik/uzunluk)" << endl;
+    cin >> birim;
+
+    if (birim == "sicaklik") {
+        double miktar;
+            cout << "cevirmek istediginiz birim?" << endl;
+            cout << "(celsius/kelvin/fahrenheit)" << endl;
+            cin >> cevirilen_birim;
+            cout << "kac " << cevirilen_birim << "?" << endl;
+            cin >> miktar;
+            cout << "cevireceginiz birim?" << endl;
+            cout << "(celsius/kelvin/fahrenheit)" << endl;
+            cin >> cevirelecek_birim;
+
+            if (cevirilen_birim == "celsius") {
+                    if (cevirelecek_birim == "kelvin"){
+                cout << "sonuc = " << miktar + 273.15 << " kelvin" << endl;
+            }
+                    if (cevirelecek_birim == "fahrenheit"){
+                cout << "sonuc = " << (miktar * 1.8) + 32 << " fahrenheit" << endl;
+            }
         }
+
+        if (cevirilen_birim == "kelvin") {
+                    if (cevirelecek_birim == "celsius"){
+                cout << "sonuc = " << miktar - 273.15 << " celsius" << endl;
+            }
+                    if (cevirelecek_birim == "fahrenheit"){
+                cout << "sonuc = " << (miktar - 273.15) * 1.8 + 32 << " fahrenheit" << endl;
+            }
+        }
+
+        if (cevirilen_birim == "fahrenheit") {
+                    if (cevirelecek_birim == "celsius"){
+                cout << "sonuc = " << (miktar - 32) / 1.8 << " celsius" << endl;
+            }
+                    if (cevirelecek_birim == "kelvin"){
+                cout << "sonuc = " << (miktar - 32) / 1.8 + 273.15 << " kelvin" << endl;
+            }
+        }
+
+            cout << "baska islem yapmak istermisiniz? (e/h)" << endl;
+        cin >> secim;
     }
 
-    while (true) {
-        cout << "Islem ve yeni sayi girin (Orn: + 5, * 2) [Cikis icin 'q']: ";
-        char islem;
-        cin >> islem;
+    if (birim == "uzunluk") {
+        double miktar;
+        double sonuc;
+            cout << "cevirmek istediginiz birim?" << endl;
+            cout << "(km/m/cm/mil)" << endl;
+            cin >> cevirilen_birim;
+            cout << "kac " << cevirilen_birim << "?" << endl;
+            cin >> miktar;
+            cout << "cevireceginiz birim?" << endl;
+            cout << "(km/m/cm/mil)" << endl;
+            cin >> cevirelecek_birim;
 
-        if (islem == 'q' || islem == 'Q') {
-            break;
+                if (cevirilen_birim == "km") {
+                    if (cevirelecek_birim == "m"){
+                cout << "sonuc = " << miktar * 1000 << " m" << endl;
+            }
+                    if (cevirelecek_birim == "cm"){
+                cout << "sonuc = " << miktar * 100000 << " cm" << endl;
+            }
+                    if (cevirelecek_birim == "mil"){
+                double sonuc = miktar * (double) 0.621;
+                cout << "sonuc = " << sonuc << " mil" << endl;
+            }
         }
 
-        string sayiStr;
-        cin >> sayiStr;
+        if (cevirilen_birim == "m") {
+            if (cevirelecek_birim == "km"){
+                cout << "sonuc = " << miktar / 1000 << " km" << endl;
+            }
+            if (cevirelecek_birim == "cm"){
+                cout << "sonuc = " << miktar * 100 << " cm" << endl;
+            }
+            if (cevirelecek_birim == "mil"){
+                double sonuc = miktar * (double) 0.000621371;
+                cout << "sonuc = " << sonuc << " mil" << endl;
+            }
+        }
+
+        if (cevirilen_birim == "cm") {
+            if (cevirelecek_birim == "km"){
+                cout << "sonuc = " << miktar / 100000 << " km" << endl;
+            }
+            if (cevirelecek_birim == "m"){
+                cout << "sonuc = " << miktar / 100 << " m" << endl;
+            }
+            if (cevirelecek_birim == "mil"){
+                double sonuc = miktar * (double) 0.00000621371;
+                cout << "sonuc = " << sonuc << " mil" << endl;
+            }
+        }
+
+        if (cevirilen_birim == "mil") {
+            if (cevirelecek_birim == "km"){
+                cout << "sonuc = " << miktar * 1.609 << " km" << endl;
+            }
+            if (cevirelecek_birim == "m"){
+                cout << "sonuc = " << miktar * 1609.934 << " m" << endl;
+            }
+            if (cevirelecek_birim == "cm"){
+                double sonuc = miktar * (double) 160934;
+                cout << "sonuc = " << sonuc << " cm" << endl;
+            }
+        }
         
-        double sayi = 0;
-        try {
-            sayi = stod(sayiStr);
-        } catch (...) {
-            cout << "Gecersiz sayi! Tekrar deneyin." << endl;
-            continue;
-        }
-
-        switch (islem) {
-            case '+':
-                sonuc += sayi;
-                break;
-            case '-':
-                sonuc -= sayi;
-                break;
-            case '*':
-                sonuc *= sayi;
-                break;
-            case '/':
-                if (sayi != 0) {
-                    sonuc /= sayi;
-                } else {
-                    cout << "Hata: Bir sayi sifira bolunemez!" << endl;
-                }
-                break;
-            default:
-                cout << "Gecersiz operator! (+, -, *, / kullanin)" << endl;
-                continue;
-        }
-
-        cout << "Guncel Sonuc: " << sonuc << endl;
-        cout << "-----------------------------------" << endl;
+        cout << "baska islem yapmak istermisiniz? (e/h)" << endl;
+        cin >> secim;
     }
 
-    cout << "Hesaplama bitti. Toplam Sonuc: " << sonuc << endl;
-    cout << "Iyi gunler dileriz!" << endl;
-    
+    } while(secim == 'e' || secim == 'E');
+
+    cout << "Iyi gunler dileriz!";
     return 0;
 }`
-        };
+ };
 
-        document.getElementById('codeArea').value = codes.banka;
+ document.getElementById('codeArea').value = codes.banka;
 
-        function loadCode(type) {
-            document.getElementById('codeArea').value = codes[type];
-        }
+ function loadCode(type) {
+ document.getElementById('codeArea').value = codes[type];
+ }
 
-        let term = null;
-        let socket = null;
-        let inputBuffer = ""; // Kullanıcının yazdığı metni geçici tutan tampon
+ let term = null;
+ let socket = null;
+ let inputBuffer = "";
 
-        function initTerminal() {
-            const container = document.getElementById('terminal-container');
-            if (term) {
-                term.dispose();
-            }
-            container.innerHTML = "";
+ function initTerminal() {
+ const container = document.getElementById('terminal-container');
+ if (term) {
+ term.dispose();
+ }
+ container.innerHTML = "";
 
-            term = new Terminal({
-                cursorBlink: true,
-                theme: { background: '#111111', foreground: '#d4d4d4' },
-                fontFamily: 'Consolas, monospace',
-                fontSize: 14
-            });
-            term.open(container);
-            term.writeln("Terminal hazir. Soldan proje seçip derleyebilirsiniz.\x1b[0m");
+ term = new Terminal({
+ cursorBlink: true,
+ theme: { background: '#111111', foreground: '#d4d4d4' },
+ fontFamily: 'Consolas, monospace',
+ fontSize: 14
+ });
+ term.open(container);
+ term.writeln("Terminal hazir. Soldan proje seçip derleyebilirsiniz.\x1b[0m");
 
-            if (!socket) {
-                socket = io();
-                socket.on('output', function(data) {
-                    if (term) {
-                        term.write(data);
-                    }
-                });
-            }
+ if (!socket) {
+ socket = io();
+ socket.on('output', function(data) {
+ if (term) {
+ term.write(data);
+ }
+ });
+ }
 
-            inputBuffer = "";
+ inputBuffer = "";
 
-            // Satır Tamponlama (Line Buffering) Mantığı
-            term.onData(function(data) {
-                if (data === '\r' || data === '\n') {
-                    term.write('\r\n');
-                    socket.emit('client_input', inputBuffer + '\n');
-                    inputBuffer = ""; // Enter'a basılınca tamponu sıfırla ve sunucuya gönder
-                } 
-                else if (data === '\u007f' || data === '\b') {
-                    // Backspace tuşuna basıldığında sadece yerel tampondan ve ekrandan sil, sunucuya gönderme!
-                    if (inputBuffer.length > 0) {
-                        inputBuffer = inputBuffer.slice(0, -1);
-                        term.write('\b \b');
-                    }
-                } 
-                else {
-                    inputBuffer += data;
-                    term.write(data); // Karakteri ekranda göster ve tampona ekle
-                }
-            });
-        }
+ term.onData(function(data) {
+ if (data === '\r' || data === '\n') {
+ term.write('\r\n');
+ socket.emit('client_input', inputBuffer + '\n');
+ inputBuffer = "";
+ } 
+ else if (data === '\u007f' || data === '\b') {
+ if (inputBuffer.length > 0) {
+ inputBuffer = inputBuffer.slice(0, -1);
+ term.write('\b \b');
+ }
+ } 
+ else {
+ inputBuffer += data;
+ term.write(data);
+ }
+ });
+ }
 
-        initTerminal();
+ initTerminal();
 
-        function runCode() {
-            initTerminal();
-            const code = document.getElementById('codeArea').value;
-            socket.emit('run_code', { code: code });
-        }
-    </script>
+ function runCode() {
+ initTerminal();
+ const code = document.getElementById('codeArea').value;
+ socket.emit('run_code', { code: code });
+ }
+ </script>
 </body>
 </html>
