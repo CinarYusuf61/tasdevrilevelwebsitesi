@@ -34,6 +34,7 @@
  <div class="pane">
  <label>C++ Kaynak Kodu & Hazır Projeler:</label>
  <div class="toolbar">
+ <button class="preset-btn" onclick="loadCode('tkm')">✊ Taş-Kağıt-Makas</button>
  <button class="preset-btn" onclick="loadCode('banka')">🏦 Bankamatik</button>
  <button class="preset-btn" onclick="loadCode('tahmin')">🎮 Sayı Tahmin</button>
  <button class="preset-btn" onclick="loadCode('hesap')">🧮 Hesap Makinesi</button>
@@ -54,6 +55,121 @@
  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
  <script>
  const codes = {
+ tkm: `#include <iostream>
+#include <vector>
+#include <string>
+#include <random>
+using namespace std;
+
+int main () {
+    char secim;
+
+    do {
+        int bilgisayar_skor = 0;
+        int kullanici_skor = 0;
+        
+        cout << "tas kagit makas oyununa hos geldiniz!" << endl;
+
+        do {
+            vector <string> tas_kagit_makas = {"tas", "kagit", "makas"};
+            random_device rd;
+            mt19937 gen(rd());
+            uniform_int_distribution<> distr(0, tas_kagit_makas.size() - 1);
+            int index = distr(gen);
+
+            string kullanici_ne_secti;
+            cout << "lutfen tas,kagit,makas dan birini secin" << endl;
+            cin >> kullanici_ne_secti;
+            cout << "sizin seciminiz: " << kullanici_ne_secti << endl;   
+            cout << "bilgisayarin secimi: "<< tas_kagit_makas[index] << endl;
+
+            if (tas_kagit_makas[index] == "tas") {
+                if (kullanici_ne_secti == "tas") {
+                    cout << "Berabere!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+                if (kullanici_ne_secti == "kagit") {
+                    kullanici_skor++;
+                    cout << "Siz kazandiniz!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+                if (kullanici_ne_secti == "makas") {
+                    bilgisayar_skor++;
+                    cout << "Bilgisayar kazandi!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+            }
+
+            if (tas_kagit_makas[index] == "kagit") {
+                if (kullanici_ne_secti == "tas") {
+                    bilgisayar_skor++;
+                    cout << "Bilgisayar kazandi!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl; 
+                }
+                if (kullanici_ne_secti == "kagit") {
+                    cout << "Berabere!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+                if (kullanici_ne_secti == "makas") {
+                    kullanici_skor++;
+                    cout << "Siz kazandiniz!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+            }
+
+            if (tas_kagit_makas[index] == "makas") {
+                if (kullanici_ne_secti == "tas") {
+                    kullanici_skor++;
+                    cout << "Siz kazandiniz!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+                if (kullanici_ne_secti == "kagit") {
+                    bilgisayar_skor++;
+                    cout << "Bilgisayar kazandi!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl; 
+                }
+                if (kullanici_ne_secti == "makas") {
+                    cout << "Berabere!" << endl;
+                    cout << "durum:" << endl;
+                    cout << "Siz: "<< kullanici_skor << endl;
+                    cout << "bilgisayar: " << bilgisayar_skor << endl;
+                }
+            }
+
+        } while (kullanici_skor < 3 && bilgisayar_skor < 3);
+
+        if (kullanici_skor == 3) {
+            cout << "tebrikler! kazandiniz!" << endl;
+            cout << "tekrar oynamak istermisiniz? (e/h)" << endl;
+            cin >> secim;
+        }
+
+        if (bilgisayar_skor == 3) {
+            cout << "bilgisayar kazandi! ancak uzulmeyin iyi oyundu!" << endl;
+            cout << "tekrar oynamak istermisiniz? (e/h)" << endl;
+            cin >> secim;
+        }
+
+    } while (secim == 'e' || secim == 'E');
+
+    return 0;
+}`,
  banka: `#include <iostream>
 #include <string>
 using namespace std;
@@ -361,7 +477,7 @@ int kelime = 0;
 int sessiz_harf = 0;
 
 cout << "lutfen cumlenizi girin: " << endl;
-cout << "(turkce karakter yada büyük karakter kullanmayiniz!)" << endl;
+cout << "(turkce karakter yada buyuk karakter kullanmayiniz!)" << endl;
 getline (cin, cumle);
 
     karakter = cumle.length();
@@ -393,7 +509,8 @@ getline (cin, cumle);
 }`
  };
 
- document.getElementById('codeArea').value = codes.banka;
+ // Varsayılan olarak Taş-Kağıt-Makas yükle
+ document.getElementById('codeArea').value = codes.tkm;
 
  function loadCode(type) {
  document.getElementById('codeArea').value = codes[type];
@@ -417,7 +534,7 @@ getline (cin, cumle);
  fontSize: 14
  });
  term.open(container);
- term.writeln("Terminal hazir. Soldan proje seçip derleyebilirsiniz.\x1b[0m");
+ term.writeln("Terminal hazir. Soldan proje secip derleyebilirsiniz.\x1b[0m");
 
  if (!socket) {
  socket = io();
